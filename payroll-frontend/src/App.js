@@ -1,0 +1,22 @@
+import React from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import Landing from "./pages/Landing";
+import AdminLogin from "./pages/AdminLogin";
+import EmployeeLogin from "./pages/EmployeeLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+
+function App() {
+  const navigate = useNavigate();
+  return (
+    <Routes>
+      <Route path="/" element={<Landing onAdminClick={() => navigate('/admin-login')} onEmployeeClick={() => navigate('/employee-login')} />} />
+      <Route path="/admin-login" element={<AdminLogin />} />
+      <Route path="/employee-login" element={<EmployeeLogin />} />
+      <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+    </Routes>
+  );
+}
+
+export default App;
