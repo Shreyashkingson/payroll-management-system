@@ -41,16 +41,18 @@ function PayslipModal({ employeeId, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-lg relative">
-        <button className="absolute top-2 right-4 text-xl" onClick={onClose}>&times;</button>
-        <h2 className="text-2xl font-bold mb-4 text-center">Payslip</h2>
-        <div>
-          <div><b>Name:</b> {payslip.first_name} {payslip.last_name}</div>
-          <div><b>Job Title:</b> {payslip.job_title}</div>
-          <div><b>Department:</b> {payslip.department_name}</div>
-          <div><b>Payslip Date:</b> {payslip.payslip_date}</div>
-          <div><b>Gross Salary:</b> ₹{payslip.gross_salary}</div>
-          <div><b>Net Salary:</b> ₹{payslip.net_salary}</div>
+      <div className="bg-card rounded-xl shadow-xl p-8 w-full max-w-lg relative border-2 border-accent">
+        <button className="absolute top-2 right-4 text-xl text-white" onClick={onClose}>&times;</button>
+        <div className="flex justify-center mb-6">
+          <span className="bg-panel text-header text-2xl font-extrabold px-8 py-2 rounded-full shadow border-2 border-accent text-center">Payslip</span>
+        </div>
+        <div className="bg-panel rounded-lg p-6 shadow-inner flex flex-col gap-2">
+          <div className="flex gap-2"><span className="font-bold text-header">Name:</span><span className="font-bold text-header">{payslip.first_name} {payslip.last_name}</span></div>
+          <div className="flex gap-2"><span className="font-bold text-header">Job Title:</span><span className="font-bold text-header">{payslip.job_title}</span></div>
+          <div className="flex gap-2"><span className="font-bold text-header">Department:</span><span className="font-bold text-header">{payslip.department_name}</span></div>
+          <div className="flex gap-2"><span className="font-bold text-header">Payslip Date:</span><span className="font-bold text-header">{payslip.payslip_date}</span></div>
+          <div className="flex gap-2"><span className="font-bold text-header">Gross Salary:</span><span className="font-bold text-header">₹{payslip.gross_salary}</span></div>
+          <div className="flex gap-2"><span className="font-bold text-header">Net Salary:</span><span className="font-bold text-header">₹{payslip.net_salary}</span></div>
         </div>
         <button
           className="mt-6 py-2 px-4 bg-header text-white rounded-lg font-semibold shadow hover:bg-primary transition-colors duration-300 w-full"
@@ -89,9 +91,9 @@ const ViewEmployeeDetails = () => {
   if (error) return <div className="text-center text-red-600 py-8">{error}</div>;
 
   return (
-    <div className="bg-card rounded-xl shadow-xl p-8 border-t-8 border-header w-full animate-slide-up overflow-x-auto">
-      <h2 className="text-2xl font-bold text-header mb-4 text-center">Employee Details</h2>
-      <table className="min-w-full table-auto border-collapse">
+    <div className="bg-card rounded-xl shadow-xl p-8 border-t-8 border-green w-full animate-slide-up overflow-x-auto font-display">
+      <h2 className="text-2xl font-extrabold text-green mb-4 text-center font-display">Employee Details</h2>
+      <table className="min-w-full table-auto border-collapse font-body">
         <thead>
           <tr className="bg-header text-white">
             <th className="px-4 py-2">ID</th>

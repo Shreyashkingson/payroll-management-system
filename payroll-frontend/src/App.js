@@ -5,6 +5,7 @@ import AdminLogin from "./pages/AdminLogin";
 import EmployeeLogin from "./pages/EmployeeLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import AddEmployeeRecords from './pages/AddEmployeeRecords';
 
 function App() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ function App() {
       <Route path="/employee-login" element={<EmployeeLogin />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
       <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+      <Route path="/add-records" element={<AddEmployeeRecords />} />
     </Routes>
   );
 }

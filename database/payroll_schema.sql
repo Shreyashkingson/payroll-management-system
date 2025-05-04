@@ -92,6 +92,9 @@ CREATE TABLE LeaveManagement (
   leave_start DATE NOT NULL,
   leave_end DATE NOT NULL,
   status VARCHAR(50) NOT NULL,
+  approval_notes TEXT,
+  approved_by INT,
+  approval_date DATE,
   FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) ON DELETE CASCADE
 );
 
@@ -112,6 +115,7 @@ CREATE TABLE Bonuses (
   bonus_id INT AUTO_INCREMENT PRIMARY KEY,
   employee_id INT,
   bonus_amount DECIMAL(10, 2) NOT NULL,
+  bonus_date DATE NOT NULL,
   FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) ON DELETE CASCADE
 );
 

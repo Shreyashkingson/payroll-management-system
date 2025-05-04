@@ -116,16 +116,16 @@ const AddEmployee = () => {
   };
 
   return (
-    <div className="bg-card rounded-xl shadow-xl p-8 border-t-8 border-header w-full animate-slide-up max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold text-header mb-4 text-center">Add Employee</h2>
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+    <div className="bg-card rounded-xl shadow-xl p-8 border-t-8 border-green w-full animate-slide-up max-w-3xl mx-auto font-display">
+      <h2 className="text-2xl font-extrabold text-green mb-4 text-center font-display">Add Employee</h2>
+      <form className="flex flex-col gap-4 font-body" onSubmit={handleSubmit}>
         <div className="flex gap-4">
           <input className="border rounded px-3 py-2 flex-1" name="first_name" placeholder="First Name" value={form.first_name} onChange={handleChange} required />
           <input className="border rounded px-3 py-2 flex-1" name="last_name" placeholder="Last Name" value={form.last_name} onChange={handleChange} required />
         </div>
         <input className="border rounded px-3 py-2" name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
         <input className="border rounded px-3 py-2" name="contact_number" placeholder="Contact Number" value={form.contact_number} onChange={handleChange} required />
-        <input className="border rounded px-3 py-2" name="date_of_birth" type="date" value={form.date_of_birth} onChange={handleChange} required />
+        <input className="border rounded px-3 py-2" name="date_of_birth" type="date" value={form.date_of_birth} onChange={handleChange} placeholder="Date of Birth" style={{ color: '#333' }} required />
         <input className="border rounded px-3 py-2" name="job_title" placeholder="Job Title" value={form.job_title} onChange={handleChange} required />
         <select className="border rounded px-3 py-2" name="gender" value={form.gender} onChange={handleChange} required>
           <option value="Male">Male</option>
@@ -135,7 +135,7 @@ const AddEmployee = () => {
         <input className="border rounded px-3 py-2" name="address" placeholder="Address" value={form.address} onChange={handleChange} required />
         <input className="border rounded px-3 py-2" name="department_id" placeholder="Department ID" value={form.department_id} onChange={handleChange} required />
         <input className="border rounded px-3 py-2" name="salary" type="number" placeholder="Salary" value={form.salary} onChange={handleChange} required />
-        <input className="border rounded px-3 py-2" name="hire_date" type="date" value={form.hire_date} onChange={handleChange} required />
+        <input className="border rounded px-3 py-2" name="hire_date" type="date" value={form.hire_date} onChange={handleChange} placeholder="Hire Date" style={{ color: '#333' }} required />
         <select className="border rounded px-3 py-2" name="status" value={form.status} onChange={handleChange} required>
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
@@ -156,8 +156,8 @@ const AddEmployee = () => {
         </div>
         <div className="flex gap-4">
           <input className="border rounded px-3 py-2 flex-1" name="leave_type" placeholder="Leave Type" value={form.leave_type} onChange={handleChange} required />
-          <input className="border rounded px-3 py-2 flex-1" name="leave_start" type="date" value={form.leave_start} onChange={handleChange} required />
-          <input className="border rounded px-3 py-2 flex-1" name="leave_end" type="date" value={form.leave_end} onChange={handleChange} required />
+          <input className="border rounded px-3 py-2 flex-1" name="leave_start" type="date" value={form.leave_start} onChange={handleChange} placeholder="Leave Start Date" style={{ color: '#333' }} required />
+          <input className="border rounded px-3 py-2 flex-1" name="leave_end" type="date" value={form.leave_end} onChange={handleChange} placeholder="Leave End Date" style={{ color: '#333' }} required />
         </div>
         <input className="border rounded px-3 py-2" name="role_name" placeholder="Role Name" value={form.role_name} onChange={handleChange} required />
         <div className="flex gap-4">
@@ -169,7 +169,7 @@ const AddEmployee = () => {
           <input className="border rounded px-3 py-2 flex-1" name="allowance_name" placeholder="Allowance Name" value={form.allowance_name} onChange={handleChange} required />
           <input className="border rounded px-3 py-2 flex-1" name="allowance_amount" type="number" placeholder="Allowance Amount" value={form.allowance_amount} onChange={handleChange} required />
         </div>
-        <button type="submit" className="py-2 px-4 bg-header text-white rounded-lg font-semibold shadow hover:bg-primary transition-colors duration-300" disabled={loading}>
+        <button type="submit" className="py-2 px-4 bg-green text-dark rounded-lg font-bold shadow hover:bg-accent hover:text-dark transition-colors duration-300" disabled={loading}>
           {loading ? "Adding..." : "Add Employee"}
         </button>
         {message && <div className="text-green-600 text-center">{message}</div>}

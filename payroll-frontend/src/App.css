@@ -14,18 +14,20 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #101d12;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: #e6e9d8;
+  font-family: 'Space Grotesk', 'Montserrat', 'Poppins', 'Segoe UI', Arial, sans-serif;
 }
 
 .App-link {
-  color: #61dafb;
+  color: #3cff5e;
+  font-weight: 600;
 }
 
 @keyframes App-logo-spin {

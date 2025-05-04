@@ -404,4 +404,279 @@ router.get("/getPayslip/:employeeId", (req, res) => {
     });
 });
 
+// Get payroll history for an employee (for salary trends)
+router.get("/getPayrollHistory/:employeeId", (req, res) => {
+    const { employeeId } = req.params;
+    const sql = `SELECT payroll_id, total_earnings, total_deductions, net_salary, payroll_date FROM Payroll WHERE employee_id = ? ORDER BY payroll_date ASC`;
+    query(sql, [employeeId], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ payrollHistory: results });
+    });
+});
+
+// Get all records for an employee from a specific table
+router.get("/getAllRecords/:tableName/:employeeId", (req, res) => {
+    const { tableName, employeeId } = req.params;
+    // Map table to its primary key, employee reference, and order by field
+    const tableMap = {
+                Employees: { pk: "employee_id", where: "employee_id", order: "employee_id" },
+                Salaries: { pk: "salary_id", where: "employee_id", order: "salary_id" },
+                Payroll: { pk: "payroll_id", where: "employee_id", order: "payroll_date" },
+                BankDetails: { pk: "bank_detail_id", where: "employee_id", order: "bank_detail_id" },
+                Allowances: { pk: "allowance_id", where: "employee_id", order: "allowance_id" },
+                Bonuses: { pk: "bonus_id", where: "employee_id", order: "bonus_id" },
+                Attendance: { pk: "attendance_id", where: "employee_id", order: "attendance_date" },
+                Deductions: { pk: "deduction_id", where: "employee_id", order: "deduction_id" },
+                LeaveManagement: { pk: "leave_id", where: "employee_id", order: "leave_start" },
+                Overtime: { pk: "overtime_id", where: "employee_id", order: "overtime_date" },
+                Taxation: { pk: "tax_id", where: "employee_id", order: "tax_year" },
+                UserRoles: { pk: "role_id", where: "employee_id", order: "role_id" },
+                SalaryGrades: { pk: "grade_id", where: "employee_id", order: "grade_id" }
+            };
+    if (!tableMap[tableName]) {
+        return res.status(400).json({ error: "Invalid table name" });
+    }
+    const sql = `SELECT * FROM ${tableName} WHERE ${tableMap[tableName].where} = ? ORDER BY ${tableMap[tableName].order} DESC`;
+    query(sql, [employeeId], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) {
+            return res.status(404).json({ error: "No records found" });
+        }
+        res.json({ records: results });
+    });
+});
+
+// Add a new record for an employee in a specific table
+router.post("/addRecord/:tableName", (req, res) => {
+    const { tableName } = req.params;
+    const { employee_id, ...recordData } = req.body;
+
+    if (!employee_id) {
+        return res.status(400).json({ error: "Employee ID is required" });
+    }
+
+    // Map table to its required fields and validation rules
+    const tableConfig = {
+        Payroll: {
+            fields: ['total_earnings', 'total_deductions', 'net_salary', 'payroll_date'],
+            numericFields: ['total_earnings', 'total_deductions', 'net_salary']
+        },
+        Overtime: {
+            fields: ['overtime_hours', 'rate_per_hour', 'overtime_pay', 'overtime_date', 'total_amount'],
+            numericFields: ['overtime_hours', 'rate_per_hour', 'overtime_pay', 'total_amount']
+        },
+        Bonuses: {
+            fields: ['bonus_amount', 'bonus_date'],
+            numericFields: ['bonus_amount']
+        },
+        Attendance: {
+            fields: ['unpaid_leave_days', 'salary_adjustment', 'attendance_date'],
+            numericFields: ['unpaid_leave_days', 'salary_adjustment']
+        },
+        LeaveManagement: {
+            fields: ['leave_type', 'leave_start', 'leave_end', 'status'],
+            dateFields: ['leave_start', 'leave_end']
+        },
+        Deductions: {
+            fields: ['tax', 'insurance', 'loan_repayment', 'total_deductions', 'deduction_name'],
+            numericFields: ['tax', 'insurance', 'loan_repayment', 'total_deductions']
+        },
+        Allowances: {
+            fields: ['allowance_name', 'amount'],
+            numericFields: ['amount']
+        }
+    };
+
+    if (!tableConfig[tableName]) {
+        return res.status(400).json({ error: "Invalid table name" });
+    }
+
+    // Validate required fields
+    const requiredFields = tableConfig[tableName].fields;
+    for (const field of requiredFields) {
+        if (!(field in recordData)) {
+            return res.status(400).json({ error: `Missing required field: ${field}` });
+        }
+    }
+
+    // Validate numeric fields
+    if (tableConfig[tableName].numericFields) {
+        for (const field of tableConfig[tableName].numericFields) {
+            if (isNaN(Number(recordData[field]))) {
+                return res.status(400).json({ error: `${field} must be a number` });
+            }
+            recordData[field] = Number(recordData[field]);
+        }
+    }
+
+    // Validate date fields
+    if (tableConfig[tableName].dateFields) {
+        for (const field of tableConfig[tableName].dateFields) {
+            if (!isValidDate(recordData[field])) {
+                return res.status(400).json({ error: `${field} must be a valid date` });
+            }
+        }
+    }
+
+    // Build the SQL query
+    const fields = ['employee_id', ...requiredFields];
+    const placeholders = fields.map(() => '?').join(', ');
+    const values = [employee_id, ...requiredFields.map(field => recordData[field])];
+
+    const sql = `INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${placeholders})`;
+
+    query(sql, values, (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Failed to add record", details: err.message });
+        }
+        res.json({ message: "Record added successfully", id: result.insertId });
+    });
+});
+
+// Helper function to validate dates
+function isValidDate(dateString) {
+    const date = new Date(dateString);
+    return date instanceof Date && !isNaN(date);
+}
+
+// Get all leave requests
+router.get("/getLeaveRequests", (req, res) => {
+    const sql = `
+        SELECT 
+            l.leave_id,
+            e.employee_id,
+            CONCAT(e.first_name, ' ', e.last_name) AS employee_name,
+            d.department_name,
+            l.leave_type,
+            l.leave_start,
+            l.leave_end,
+            l.status,
+            l.approval_notes
+        FROM LeaveManagement l
+        JOIN Employees e ON l.employee_id = e.employee_id
+        JOIN Departments d ON e.department_id = d.department_id
+        ORDER BY l.leave_start DESC
+    `;
+    query(sql, [], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ leaveRequests: results });
+    });
+});
+
+// Approve leave request
+router.post("/approveLeave/:leaveId", (req, res) => {
+    const { leaveId } = req.params;
+    const { notes } = req.body;
+
+    beginTransaction((err) => {
+        if (err) return res.status(500).json({ error: "Transaction Error", details: err.message });
+
+        // Update leave status
+        const updateLeaveSql = `
+            UPDATE LeaveManagement 
+            SET status = 'Approved',
+                approval_notes = ?,
+                approved_by = ?,
+                approval_date = CURDATE()
+            WHERE leave_id = ?
+        `;
+        query(updateLeaveSql, [notes, 1, leaveId], (err) => {
+            if (err) return rollback(() => res.status(500).json({ error: err.message }));
+
+            // Get leave details
+            const getLeaveSql = `
+                SELECT employee_id, leave_start, leave_end
+                FROM LeaveManagement
+                WHERE leave_id = ?
+            `;
+            query(getLeaveSql, [leaveId], (err, leave) => {
+                if (err) return rollback(() => res.status(500).json({ error: err.message }));
+
+                // Calculate leave days and salary adjustment
+                const leaveDays = Math.ceil((new Date(leave[0].leave_end) - new Date(leave[0].leave_start)) / (1000 * 60 * 60 * 24)) + 1;
+                
+                // Get employee salary
+                const getSalarySql = `
+                    SELECT basic_salary
+                    FROM Salaries
+                    WHERE employee_id = ?
+                `;
+                query(getSalarySql, [leave[0].employee_id], (err, salary) => {
+                    if (err) return rollback(() => res.status(500).json({ error: err.message }));
+
+                    const dailySalary = salary[0].basic_salary / 30;
+                    const salaryAdjustment = dailySalary * leaveDays;
+
+                    // Create attendance records
+                    let currentDate = new Date(leave[0].leave_start);
+                    const endDate = new Date(leave[0].leave_end);
+                    let attendanceQueries = [];
+
+                    while (currentDate <= endDate) {
+                        attendanceQueries.push({
+                            sql: `
+                                INSERT INTO Attendance (
+                                    employee_id,
+                                    attendance_date,
+                                    clock_in_time,
+                                    clock_out_time,
+                                    unpaid_leave_days,
+                                    salary_adjustment
+                                ) VALUES (?, ?, NULL, NULL, 1, ?)
+                            `,
+                            values: [leave[0].employee_id, currentDate, dailySalary]
+                        });
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+
+                    // Execute attendance queries
+                    let counter = 0;
+                    attendanceQueries.forEach(({ sql, values }) => {
+                        query(sql, values, (err) => {
+                            if (err) return rollback(() => res.status(500).json({ error: err.message }));
+                            counter++;
+                            if (counter === attendanceQueries.length) {
+                                // Update payroll
+                                const updatePayrollSql = `
+                                    UPDATE Payroll
+                                    SET total_deductions = total_deductions + ?,
+                                        net_salary = net_salary - ?
+                                    WHERE employee_id = ?
+                                    AND payroll_date = DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                                `;
+                                query(updatePayrollSql, [salaryAdjustment, salaryAdjustment, leave[0].employee_id], (err) => {
+                                    if (err) return rollback(() => res.status(500).json({ error: err.message }));
+                                    commit((err) => {
+                                        if (err) return rollback(() => res.status(500).json({ error: "Commit Failed", details: err.message }));
+                                        res.json({ message: "Leave request approved successfully" });
+                                    });
+                                });
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+// Reject leave request
+router.post("/rejectLeave/:leaveId", (req, res) => {
+    const { leaveId } = req.params;
+    const { notes } = req.body;
+
+    const sql = `
+        UPDATE LeaveManagement 
+        SET status = 'Rejected',
+            approval_notes = ?,
+            approved_by = ?,
+            approval_date = CURDATE()
+        WHERE leave_id = ?
+    `;
+    query(sql, [notes, 1, leaveId], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Leave request rejected successfully" });
+    });
+});
+
 export default router;
