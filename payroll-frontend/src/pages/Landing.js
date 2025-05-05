@@ -29,8 +29,18 @@ const Landing = ({ onAdminClick, onEmployeeClick }) => (
       </div>
     </main>
     <footer className="w-full py-4 bg-header text-center text-xs text-white mt-8 animate-fade-in-slow">
-      © 2024 Payroll Management System. All rights reserved.
-    </footer>
+  © 2024 Payroll Management System. All rights reserved.
+  <div className="flex flex-col items-center mt-4">
+    <img
+      src=""
+      alt="Collaborator"
+      style={{ width: "180px", height: "180px", borderRadius: "50%", objectFit: "cover", marginBottom: "8px", border: "2px solid #00FF66" }}
+    />
+    <span style={{ color: "#00FF66", fontWeight: "bold" }}>
+      Shreyash & Aditi the two who made this possible and the ones who will make this better!😄
+    </span>
+  </div>
+</footer> 
     {/* Animations */}
     <style>{`
       .animate-fade-in { animation: fadeIn 1s ease; }

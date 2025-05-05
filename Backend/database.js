@@ -3,8 +3,8 @@ import mysql from "mysql";
 const db = mysql.createConnection({
     host: "localhost",      // Your MySQL server (default is localhost)
     user: "root",           // Your MySQL username
-    password: "shreyash",           // Your MySQL password (leave blank if none)
-    database: "payroll_management_system"  // Replace with your actual database name
+    password: "",           // Your MySQL password (leave blank if none)
+    database: ""  // Replace with your actual database name
 });
 
 db.connect((err) => {
